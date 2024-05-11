@@ -1,5 +1,9 @@
 import numpy as np
 
+from multipledispatch import dispatch
+# from typing import overload
+
+
 class SimBase(object):
     def __init__(self) -> None:
         self.__childs = []
@@ -15,6 +19,7 @@ class SimBase(object):
 
     def addChild(self, child : "SimBase"):
         child.parent = self
+        child.scaleMatrix = self.scaleMatrix
         self.__childs.append(child)
 
     def getChilds(self) -> "SimBase":
@@ -27,3 +32,31 @@ class SimBase(object):
     @property
     def matrix(self) -> np.matrix:
         raise NotImplementedError
+    
+    def createScaleMatrix(self, sx : float, sy : float) -> np.matrix:
+        scaleMatrix = np.matrix([[sx,  0, 0],
+                                 [ 0, sy, 0],
+                                 [ 0,  0,  1]])
+        return scaleMatrix
+    
+    def createTranslationMatrix(self, tx: float, ty : float) -> np.matrix:
+        translateMatrix = np.matrix([[0, 0, tx],
+                                     [0, 0, ty],
+                                     [0, 0,  1]])
+        return translateMatrix
+    
+    @property
+    def scaleMatrix(self) -> np.matrix:
+        return self.__scaleMatrix
+    
+    @scaleMatrix.setter
+    def scaleMatrix(self, matrix : np.matrix) -> None:
+        self.__scaleMatrix = matrix
+
+    @property
+    def translationMatrix(self) -> np.matrix:
+        return self.__translationMatrix
+    
+    @translationMatrix.setter
+    def translationMatrix(self, matrix : np.matrix) -> None:
+        self.__translationMatrix = matrix
