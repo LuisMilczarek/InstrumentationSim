@@ -12,6 +12,8 @@ class SimObject(SimBase):
         self.__pose = np.matrix([0,0,0])
         self.screen = screen
         self.__color = pg.Color(255,0,0)
+        self.__cachedMatrix = None
+        self.__cached = False
 
     @property
     def pose(self) -> np.matrix:
@@ -40,16 +42,19 @@ class SimObject(SimBase):
     
     @property
     def matrix(self) -> np.matrix:
-        matrix = np.matrix([[np.cos(self.pose[0,2]), -np.sin(self.pose[0,2]), self.pose[0,0]],
-                             [np.sin(self.pose[0,2]),   np.cos(self.pose[0,2]), self.pose[0,1]],
-                                                 [0,                        0,             1]])
-        return self.parent.matrix * matrix
+        if not self.__cached:
+            self.__cached = True
+            self.__cachedMatrix = self.parent.matrix * np.matrix([[np.cos(self.pose[0,2]),  -np.sin(self.pose[0,2]), self.pose[0,0]],
+                                                                  [np.sin(self.pose[0,2]),   np.cos(self.pose[0,2]), self.pose[0,1]],
+                                                                  [                     0,                        0,             1]])
+        return self.__cachedMatrix
     
+    def resetCache(self):
+        self.__cachedMatrix = None
+        self.__cached = False
+
     def getPointPos(self, matrix : np.matrix, x : float, y : float) -> "tuple[float,float]":
-        # print(f"x: {x}, y: {y}, Matrix: ")
-        # print(matrix)
         result = matrix * np.matrix([[x],[y],[1]])
-        # print(result)
         return result[0,0], result[1,0]
 
     
@@ -58,4 +63,9 @@ class SimObject(SimBase):
             child.draw()
 
     def draw(self):
+        self.on_draw()        
         self.drawChilds()
+        self.resetCache()
+    
+    def on_draw(self):
+        raise NotImplementedError

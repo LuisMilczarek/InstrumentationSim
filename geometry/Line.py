@@ -31,7 +31,7 @@ class Line(SimObject):
     def P2(self, p2 : SimObject) -> None:
         self.__p2 = p2
     
-    def draw(self):
+    def on_draw(self):
         w, _ = self.getPointPos(self.scaleMatrix, self.width, self.width)
         pg.draw.line(self.screen, self.color, self.P1.global_pose, self.P2.global_pose, int(w))
         self.drawChilds()

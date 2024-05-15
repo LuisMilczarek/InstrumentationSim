@@ -23,7 +23,7 @@ class Rectangle(SimObject):
     def width(self, width : float):
         self.__width = width
 
-    def draw(self):
+    def on_draw(self):
         matrix = self.matrix
         h = self.height/2
         w = self.width/2
