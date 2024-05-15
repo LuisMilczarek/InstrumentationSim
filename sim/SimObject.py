@@ -58,9 +58,9 @@ class SimObject(SimBase):
         return result[0,0], result[1,0]
 
     
-    def drawChilds(self):
-        for child  in self.getChilds():
-            child.draw()
+    # def drawChilds(self):
+    #     for child  in self.getChilds():
+    #         child.draw()
 
     def draw(self):
         self.on_draw()        

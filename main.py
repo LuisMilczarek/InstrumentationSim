@@ -4,7 +4,7 @@ import pygame as pg
 import numpy as np
 from time import perf_counter
 
-from sim import SimBase
+from sim import SimBase, DummyObject
 from utils import Rate
 
 from geometry import Circle, Rectangle, Line
@@ -32,10 +32,13 @@ class App(SimBase):
                 point = Circle(self.__display_surf,0.025)
                 point.pose = np.matrix([i,j,0])
                 self.addChild(point)
-        self.center = Circle(self.__display_surf, .1)
-        self.circle = Circle(self.__display_surf, .1)
+        # self.center = Circle(self.__display_surf, .1)
+        # self.circle = Circle(self.__display_surf, .1)
+        self.center = DummyObject(self.__display_surf)
+        self.circle = DummyObject(self.__display_surf)
+        self.circle.color = pg.Color(0,0,0,255)
         self.rec = Rectangle(self.__display_surf, 0.5,0.5)
-        self.rec.color = pg.Color(0,255,0)
+        self.rec.color = pg.Color(0,255,0,0)
 
         self.line = Line(self.__display_surf,.1)
         self.line.color = pg.Color(0,0,0)
