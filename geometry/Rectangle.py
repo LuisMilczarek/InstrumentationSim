@@ -24,12 +24,16 @@ class Rectangle(SimObject):
         self.__width = width
 
     def draw(self):
-        matrix = self.scaleMatrix
-        pose = self.global_pose
-        # print(matrix)
+        matrix = self.matrix
+        h = self.height/2
+        w = self.width/2
+        points = [[-w, h],[w, h],
+                  [w,-h], [-w,-h]]
+        global_points = []
+        for x,y in points:
+            gx,gy = self.getPointPos(matrix, x,y)
+            global_points.append((gx,gy))
         
-        w, h = self.getPointPos(matrix, self.width, self.height)
-        # print(f"W: {w}, h: {h}")
-        rec = pg.Rect(pose.x - (w/2), pose.y +( h/2), w, -h)
-        pg.draw.rect(self.screen, self.color, rec)
+        pg.draw.polygon(self.screen, self.color, global_points)
+        self.drawChilds()
         

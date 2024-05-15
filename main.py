@@ -7,15 +7,16 @@ from time import perf_counter
 from sim import SimObject, SimBase
 from utils import Rate
 
-from geometry import Circle, Rectangle
+from geometry import Circle, Rectangle, Line
 
 class App(SimBase):
     def __init__(self) -> None:
         super().__init__()
         self.__running = True
         self.__display_surf = None
-        self.size = self.width, self.height = 1024,1024
-        self.scaleMatrix = self.createScaleMatrix(self.width/10, -self.height/10)
+        self.size = self.width, self.height = 1920,1080
+        scale = self.width/10
+        self.scaleMatrix = self.createScaleMatrix(scale, -scale)
         self.translationMatrix = self.createTranslationMatrix(self.width/2, self.height/2)
 
     @property
@@ -37,7 +38,17 @@ class App(SimBase):
         self.addChild(self.circle)
         self.rec = Rectangle(self.__display_surf, 0.5,0.5)
         self.rec.color = pg.Color(0,255,0)
-        self.circle.addChild(self.rec)        
+        self.circle.addChild(self.rec)
+
+        self.line = Line(self.__display_surf,.1)
+        self.line.P1 = self.center
+        self.line.P2 = self.circle
+        self.addChild(self.line)
+
+        self.line2 = Line(self.__display_surf,.1)
+        self.line2.P1 = self.circle
+        self.line2.P2 = self.rec
+        self.addChild(self.line2)
 
         self._initTime = perf_counter()
 
@@ -60,7 +71,7 @@ class App(SimBase):
         py2 = np.sin(2*np.pi*dt)
 
         self.circle.pose = np.matrix([px,py,2*np.pi*dt])
-        self.rec.pose = np.matrix([1,0,0])
+        self.rec.pose = np.matrix([1,0,2*np.pi*dt])
         
 
     def cleanUp(self):
@@ -70,13 +81,14 @@ class App(SimBase):
         if self.on_init() == False:
             self._running = False
 
-        r = Rate(60)
+        r = Rate(40)
         while self.__running:
             for event in pg.event.get():
                 self.events(event)
             self.pool()
             self.render()
             r.sleep()
+        self.cleanUp()
 
 if __name__ == "__main__":
     
