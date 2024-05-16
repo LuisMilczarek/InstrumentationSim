@@ -52,6 +52,8 @@ class SimObject(SimBase):
     def resetCache(self):
         self.__cachedMatrix = None
         self.__cached = False
+        for child in self.getChilds():
+            child.resetCache()
 
     def getPointPos(self, matrix : np.matrix, x : float, y : float) -> "tuple[float,float]":
         result = matrix * np.matrix([[x],[y],[1]])
@@ -65,7 +67,7 @@ class SimObject(SimBase):
     def draw(self):
         self.on_draw()        
         self.drawChilds()
-        self.resetCache()
+        # self.resetCache()
     
     def on_draw(self):
         raise NotImplementedError

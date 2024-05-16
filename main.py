@@ -18,6 +18,7 @@ class App(SimBase):
         scale = self.width/10
         self.scaleMatrix = self.createScaleMatrix(scale, -scale)
         self.translationMatrix = self.createTranslationMatrix(self.width/2, self.height/2)
+        self.pause = False
 
     @property
     def matrix(self):
@@ -32,13 +33,12 @@ class App(SimBase):
                 point = Circle(self.__display_surf,0.025)
                 point.pose = np.matrix([i,j,0])
                 self.addChild(point)
-        # self.center = Circle(self.__display_surf, .1)
-        # self.circle = Circle(self.__display_surf, .1)
-        self.center = DummyObject(self.__display_surf)
-        self.circle = DummyObject(self.__display_surf)
-        self.circle.color = pg.Color(0,0,0,255)
+        self.center = Circle(self.__display_surf, .1)
+        self.circle = Circle(self.__display_surf, .1)
+        # self.center = DummyObject(self.__display_surf)
+        # self.circle = DummyObject(self.__display_surf)
         self.rec = Rectangle(self.__display_surf, 0.5,0.5)
-        self.rec.color = pg.Color(0,255,0,0)
+        self.rec.color = pg.Color(0,255,0,)
 
         self.line = Line(self.__display_surf,.1)
         self.line.color = pg.Color(0,0,0)
@@ -50,17 +50,21 @@ class App(SimBase):
         self.line2.P1 = self.circle
         self.line2.P2 = self.rec
 
-        self.addChild(self.line)
-        self.addChild(self.line2)
         self.addChild(self.center)
         self.center.addChild(self.circle)
         self.circle.addChild(self.rec)
+        self.addChild(self.line)
+        self.addChild(self.line2)
 
         self._initTime = perf_counter()
 
     def events(self, event):
         if event.type == pg.QUIT:
             self.__running = False
+        elif event.type == pg.KEYDOWN:
+            if event.key == pg.K_p:
+                self.pause = not self.pause
+                
 
     def render(self):
         self.__display_surf.fill((255,255,255))
@@ -88,8 +92,11 @@ class App(SimBase):
         while self.__running:
             for event in pg.event.get():
                 self.events(event)
-            self.pool()
+            if not self.pause:
+                self.pool()
             self.render()
+            for child in self.getChilds():
+                child.resetCache()
             r.sleep()
         self.cleanUp()
 
