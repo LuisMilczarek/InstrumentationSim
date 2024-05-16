@@ -20,6 +20,8 @@ class App(SimBase):
         self.translationMatrix = self.createTranslationMatrix(self.width/2, self.height/2)
         self.pause = False
 
+        self.__running_time = 0
+
     @property
     def matrix(self):
         return self.scaleMatrix + self.translationMatrix
@@ -50,20 +52,31 @@ class App(SimBase):
         self.line2.P1 = self.circle
         self.line2.P2 = self.rec
 
+        self.addChild(self.line)
+        self.addChild(self.line2)
         self.addChild(self.center)
         self.center.addChild(self.circle)
         self.circle.addChild(self.rec)
-        self.addChild(self.line)
-        self.addChild(self.line2)
 
         self._initTime = perf_counter()
+        self.__dt : float = 0
 
     def events(self, event):
         if event.type == pg.QUIT:
             self.__running = False
         elif event.type == pg.KEYDOWN:
-            if event.key == pg.K_p:
+            if event.key == pg.K_ESCAPE or event.key == pg.K_q:
+                self.__running = False
+            elif event.key == pg.K_p:
                 self.pause = not self.pause
+
+    def updateTime(self):
+        now = perf_counter()
+        dt = now - self._initTime
+        self._initTime = now
+        if not self.pause:
+            self.__running_time += dt
+        self.__dt = dt
                 
 
     def render(self):
@@ -72,12 +85,14 @@ class App(SimBase):
         pg.display.update()
     
     def pool(self):
-        dt = perf_counter() - self._initTime
         # dt *= 0.05
-        px = np.cos(np.pi*dt)*2
-        py = np.sin(np.pi*dt)*2
+        px = np.cos(np.pi*self.__running_time)*2
+        py = np.sin(np.pi*self.__running_time)*2
 
-        self.circle.pose = np.matrix([px,py,2*np.pi*dt])
+        # self.circle.pose = np.matrix([px,py,2*np.pi*dt])
+        self.circle.x = px
+        self.circle.y = py
+        self.circle.rotate(2*np.pi*self.__dt)
         self.rec.pose = np.matrix([1,0,0])
         
 
@@ -90,6 +105,7 @@ class App(SimBase):
 
         r = Rate(60)
         while self.__running:
+            self.updateTime()
             for event in pg.event.get():
                 self.events(event)
             if not self.pause:
